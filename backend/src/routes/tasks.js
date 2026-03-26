@@ -77,4 +77,16 @@ export default async function tasksRoutes(fastify) {
         const logs = db.prepare('SELECT * FROM task_logs WHERE task_id = ? ORDER BY created_at ASC').all(request.params.id);
         return logs;
     });
+
+    // GET task nodes (for graphical visualization)
+    fastify.get('/api/tasks/:id/nodes', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+        const db = getDb();
+        const workspaceId = request.user.workspace_id;
+
+        const task = db.prepare('SELECT id FROM tasks WHERE id = ? AND workspace_id = ?').get(request.params.id, workspaceId);
+        if (!task) return reply.code(404).send({ error: 'Task not found' });
+
+        const nodes = db.prepare('SELECT * FROM task_nodes WHERE task_id = ? ORDER BY created_at ASC').all(request.params.id);
+        return nodes;
+    });
 }

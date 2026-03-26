@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import TaskGraph from '@/components/TaskGraph';
 import { getTasks, launchTask, cancelTask, getTaskLogs, getAgents } from '@/lib/api';
 import { useWebSocket } from '@/lib/websocket';
 
@@ -9,6 +10,7 @@ export default function TasksPage() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showLogs, setShowLogs] = useState(null);
+    const [showGraph, setShowGraph] = useState(null);
     const [logs, setLogs] = useState([]);
     const [filter, setFilter] = useState('');
     const [form, setForm] = useState({ title: '', description: '', input: '', agentId: '', priority: 'medium' });
@@ -139,6 +141,7 @@ export default function TasksPage() {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '6px' }}>
+                                            <button className="btn btn-primary btn-sm" onClick={() => setShowGraph(task.id)}>Flow</button>
                                             <button className="btn btn-ghost btn-sm" onClick={() => viewLogs(task.id)}>Logs</button>
                                             {(task.status === 'pending' || task.status === 'running') && (
                                                 <button className="btn btn-danger btn-sm" onClick={() => handleCancel(task.id)}>Cancel</button>
@@ -220,6 +223,18 @@ export default function TasksPage() {
                         )}
                         <div className="modal-actions">
                             <button className="btn btn-ghost" onClick={() => setShowLogs(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Flow Graph Modal */}
+            {showGraph && (
+                <div className="modal-overlay" onClick={() => setShowGraph(null)}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', width: '90%' }}>
+                        <h2>Execution Flow — Task {showGraph.slice(0, 8)}</h2>
+                        <TaskGraph taskId={showGraph} />
+                        <div className="modal-actions">
+                            <button className="btn btn-ghost" onClick={() => setShowGraph(null)}>Close</button>
                         </div>
                     </div>
                 </div>

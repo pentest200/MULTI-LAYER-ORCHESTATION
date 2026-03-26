@@ -56,6 +56,7 @@ export const getTask = (id) => request(`/api/tasks/${id}`);
 export const launchTask = (data) => request('/api/tasks/launch', { method: 'POST', body: data });
 export const cancelTask = (id) => request(`/api/tasks/${id}/cancel`, { method: 'POST' });
 export const getTaskLogs = (id) => request(`/api/tasks/${id}/logs`);
+export const getTaskNodes = (id) => request(`/api/tasks/${id}/nodes`);
 
 // Workflows
 export const getWorkflows = () => request('/api/workflows');
