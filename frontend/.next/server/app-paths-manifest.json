@@ -1,8 +1,8 @@
 {
   "/page": "app/page.js",
-  "/tasks/page": "app/tasks/page.js",
-  "/oversight/page": "app/oversight/page.js",
   "/agents/page": "app/agents/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/workflows/page": "app/workflows/page.js"
+  "/tasks/page": "app/tasks/page.js",
+  "/workflows/page": "app/workflows/page.js",
+  "/oversight/page": "app/oversight/page.js",
+  "/settings/page": "app/settings/page.js"
 }
