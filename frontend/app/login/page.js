@@ -28,43 +28,62 @@ export default function LoginPage() {
 
     return (
         <div className="auth-container">
-            <div className="glass-card auth-card animate-in">
+            <div className="glass-card auth-card animate-in" style={{
+                backdropFilter: 'blur(32px)',
+                background: 'rgba(13, 15, 23, 0.7)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--shadow-glow-blue)'
+            }}>
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                     <div style={{
-                        width: '64px',
-                        height: '64px',
-                        borderRadius: 'var(--radius-md)',
+                        width: '72px',
+                        height: '72px',
+                        borderRadius: 'var(--radius-lg)',
                         background: 'var(--gradient-blue)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '32px',
-                        margin: '0 auto 16px',
+                        fontSize: '36px',
+                        margin: '0 auto 20px',
                         boxShadow: 'var(--shadow-glow-blue)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)'
                     }}>
                         🧠
                     </div>
-                    <h2 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px' }}>Welcome Back</h2>
-                    <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Log in to your Command Center</p>
+                    <h2 style={{
+                        fontSize: '28px',
+                        fontWeight: 800,
+                        letterSpacing: '-1px',
+                        background: 'linear-gradient(135deg, #fff 0%, #9499b3 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                    }}>Welcome Back</h2>
+                    <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontSize: '15px' }}>Access your orchestration command center</p>
                 </div>
 
                 {error && (
                     <div style={{
-                        padding: '12px 16px',
+                        padding: '14px 18px',
                         background: 'rgba(239, 68, 68, 0.1)',
                         border: '1px solid rgba(239, 68, 68, 0.2)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--accent-red)',
+                        borderRadius: 'var(--radius-md)',
+                        color: '#ff6b6b',
                         fontSize: '14px',
-                        marginBottom: '24px',
+                        marginBottom: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        animation: 'fadeIn 0.3s ease'
                     }}>
-                        {error}
+                        <span>⚠️</span> {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className="form-group">
-                        <label>Email Address</label>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            Email Address
+                        </label>
                         <input
                             type="email"
                             className="form-control"
@@ -72,10 +91,14 @@ export default function LoginPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             placeholder="name@company.com"
+                            style={{ background: 'rgba(0, 0, 0, 0.2)' }}
                         />
                     </div>
-                    <div className="form-group">
-                        <label>Password</label>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            Password
+                            <a href="#" style={{ fontSize: '12px', color: 'var(--accent-blue)', textTransform: 'none', fontWeight: 500 }}>Forgot?</a>
+                        </label>
                         <input
                             type="password"
                             className="form-control"
@@ -83,17 +106,35 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder="••••••••"
+                            style={{ background: 'rgba(0, 0, 0, 0.2)' }}
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '14px' }}>
-                        {loading ? 'Authenticating...' : 'Sign In'}
+                    <button type="submit" className="btn btn-primary" disabled={loading} style={{
+                        padding: '16px',
+                        fontSize: '15px',
+                        marginTop: '8px'
+                    }}>
+                        {loading ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div className="spinner" style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                                Authenticating...
+                            </span>
+                        ) : 'Sign In to Dashboard'}
                     </button>
                 </form>
 
-                <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '14px', color: 'var(--text-secondary)' }}>
-                    Don't have an account? <Link href="/signup" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>Create one</Link>
-                </p>
+                <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>New to the platform?</span>{' '}
+                    <Link href="/signup" style={{ color: 'var(--accent-blue)', fontWeight: 600, textDecoration: 'none' }}>Create an account</Link>
+                </div>
+
+                <style jsx>{`
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                `}</style>
             </div>
         </div>
     );
+
 }

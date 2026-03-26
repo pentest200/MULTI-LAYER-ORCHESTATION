@@ -23,13 +23,16 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         if (!loading) {
             const publicPages = ['/login', '/signup'];
-            if (!user && !publicPages.includes(pathname)) {
-                router.push('/login');
-            } else if (user && publicPages.includes(pathname)) {
-                router.push('/');
+            const isPublicPage = publicPages.includes(pathname);
+
+            if (!user && !isPublicPage) {
+                router.replace('/login');
+            } else if (user && isPublicPage) {
+                router.replace('/');
             }
         }
     }, [user, loading, pathname, router]);
+
 
     const login = (userData, token) => {
         localStorage.setItem('token', token);

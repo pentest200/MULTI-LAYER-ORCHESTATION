@@ -17,12 +17,19 @@ async function request(endpoint, options = {}) {
         config.body = JSON.stringify(config.body);
     }
 
-    const res = await fetch(url, config);
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || 'Request failed');
+    try {
+        const res = await fetch(url, config);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: res.statusText }));
+            throw new Error(err.error || 'Request failed');
+        }
+        return res.json();
+    } catch (err) {
+        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+            throw new Error('Server unreachable. Please ensure the backend is running on port 3001.');
+        }
+        throw err;
     }
-    return res.json();
 }
 
 // Auth
