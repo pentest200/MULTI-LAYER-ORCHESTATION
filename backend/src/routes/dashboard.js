@@ -39,6 +39,34 @@ export default async function dashboardRoutes(fastify) {
 
         const avgConfidence = db.prepare("SELECT AVG(confidence) as avg FROM tasks WHERE status = 'completed' AND confidence > 0 AND workspace_id = ?").get(workspaceId);
 
+        // --- NEW: Temporal Data (Last 7 Days) ---
+        const taskTrends = [];
+        const costTrends = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+
+            const count = db.prepare("SELECT COUNT(*) as count FROM tasks WHERE date(created_at) = ? AND workspace_id = ?").get(dateStr, workspaceId).count;
+            const cost = db.prepare("SELECT SUM(cost) as total FROM usage_logs WHERE date(created_at) = ? AND workspace_id = ?").get(dateStr, workspaceId).total || 0;
+
+            taskTrends.push({ date: dateStr, count });
+            costTrends.push({ date: dateStr, cost: parseFloat(cost.toFixed(4)) });
+        }
+
+        // --- NEW: Agent Performance ---
+        const agentPerformance = db.prepare(`
+            SELECT 
+                a.id, a.name, a.model,
+                COUNT(t.id) as total_tasks,
+                SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as successful_tasks,
+                AVG(CASE WHEN t.status = 'completed' THEN t.confidence ELSE NULL END) as avg_confidence
+            FROM agents a
+            LEFT JOIN tasks t ON a.id = t.agent_id
+            WHERE a.workspace_id = ?
+            GROUP BY a.id
+        `).all(workspaceId);
+
         return {
             agents: { total: totalAgents, active: activeAgents, idle: idleAgents, error: errorAgents },
             tasks: { total: totalTasks, pending: pendingTasks, running: runningTasks, completed: completedTasks, failed: failedTasks, awaitingApproval: waitingForApproval },
@@ -46,11 +74,16 @@ export default async function dashboardRoutes(fastify) {
             oversight: { pending: pendingOversight },
             system: {
                 connectedClients: getConnectedClients(),
-                runningProcesses: getRunningTaskCount(), // This is system-wide, could be filtered if needed
+                runningProcesses: getRunningTaskCount(),
                 openaiConfigured: isConfigured(),
                 avgConfidence: avgConfidence?.avg || 0,
                 totalCost: (totalCost || 0).toFixed(2),
             },
+            trends: {
+                tasks: taskTrends,
+                cost: costTrends,
+            },
+            agentPerformance,
             recentTasks,
             recentAgents,
         };
