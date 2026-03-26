@@ -1,5 +1,6 @@
 import './globals.css';
-import Sidebar from '@/components/Sidebar';
+import { AuthProvider } from '@/lib/auth';
+import AppLayout from '@/components/AppLayout';
 
 export const metadata = {
     title: 'AI Agent Command Center',
@@ -10,12 +11,9 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                <div className="app-layout">
-                    <Sidebar />
-                    <main className="main-content">
-                        {children}
-                    </main>
-                </div>
+                <AuthProvider>
+                    <AppLayout>{children}</AppLayout>
+                </AuthProvider>
             </body>
         </html>
     );

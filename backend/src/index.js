@@ -2,6 +2,7 @@ import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import websocket from '@fastify/websocket';
+import jwt from '@fastify/jwt';
 import { initializeSchema } from './db/schema.js';
 import authRoutes from './routes/auth.js';
 import billingRoutes from './routes/billing.js';
@@ -26,6 +27,17 @@ async function start() {
     // Register plugins
     await fastify.register(cors, { origin: true });
     await fastify.register(websocket);
+    await fastify.register(jwt, {
+        secret: process.env.JWT_SECRET || 'super-secret-key-change-this-in-production',
+    });
+
+    fastify.decorate('authenticate', async (request, reply) => {
+        try {
+            await request.jwtVerify();
+        } catch (err) {
+            reply.send(err);
+        }
+    });
 
     // Initialize database
     initializeSchema();
@@ -41,16 +53,23 @@ async function start() {
     await fastify.register(settingsRoutes);
     await fastify.register(wsRoutes);
 
+    fastify.get('/', async () => {
+        return { status: 'running', service: 'AI Agent Command Center' };
+    });
+
     // Start server
     try {
-        await fastify.listen({ port: PORT, host: HOST });
-        console.log(`\n🚀 AI Agent Command Center Backend running on http://${HOST}:${PORT}`);
+        const address = await fastify.listen({ port: PORT, host: HOST });
+        console.log(`\n🚀 AI Agent Command Center Backend running on ${address}`);
         console.log(`📡 WebSocket available at ws://${HOST}:${PORT}/ws`);
         console.log(`🔑 OpenAI API: ${process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here' ? 'Configured ✅' : 'Not configured ❌'}\n`);
     } catch (err) {
-        fastify.log.error(err);
+        console.error('Failed to start server:', err);
         process.exit(1);
     }
 }
 
-start();
+start().catch(err => {
+    console.error('Fatal error during startup:', err);
+    process.exit(1);
+});

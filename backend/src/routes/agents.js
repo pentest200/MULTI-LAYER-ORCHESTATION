@@ -2,10 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '../db/connection.js';
 
 export default async function agentsRoutes(fastify) {
-    // GET all agents
-    fastify.get('/api/agents', async () => {
+    // GET all agents for workspace
+    fastify.get('/api/agents', { preHandler: [fastify.authenticate] }, async (request) => {
         const db = getDb();
-        const agents = db.prepare('SELECT * FROM agents ORDER BY created_at DESC').all();
+        const workspaceId = request.user.workspace_id;
+
+        const agents = db.prepare('SELECT * FROM agents WHERE workspace_id = ? ORDER BY created_at DESC').all(workspaceId);
         return agents.map(a => ({
             ...a,
             capabilities: JSON.parse(a.capabilities || '[]'),
@@ -13,24 +15,28 @@ export default async function agentsRoutes(fastify) {
     });
 
     // GET single agent
-    fastify.get('/api/agents/:id', async (request, reply) => {
+    fastify.get('/api/agents/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
         const db = getDb();
-        const agent = db.prepare('SELECT * FROM agents WHERE id = ?').get(request.params.id);
+        const workspaceId = request.user.workspace_id;
+
+        const agent = db.prepare('SELECT * FROM agents WHERE id = ? AND workspace_id = ?').get(request.params.id, workspaceId);
         if (!agent) return reply.code(404).send({ error: 'Agent not found' });
         return { ...agent, capabilities: JSON.parse(agent.capabilities || '[]') };
     });
 
     // POST create agent
-    fastify.post('/api/agents', async (request) => {
+    fastify.post('/api/agents', { preHandler: [fastify.authenticate] }, async (request) => {
         const db = getDb();
+        const workspaceId = request.user.workspace_id;
         const { name, description, system_prompt, model, capabilities, max_tokens, temperature } = request.body;
         const id = uuidv4();
 
         db.prepare(`
-      INSERT INTO agents (id, name, description, system_prompt, model, capabilities, max_tokens, temperature)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
+            INSERT INTO agents (id, workspace_id, name, description, system_prompt, model, capabilities, max_tokens, temperature)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
             id,
+            workspaceId,
             name,
             description || '',
             system_prompt || 'You are a helpful AI assistant.',
@@ -44,26 +50,28 @@ export default async function agentsRoutes(fastify) {
     });
 
     // PUT update agent
-    fastify.put('/api/agents/:id', async (request, reply) => {
+    fastify.put('/api/agents/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
         const db = getDb();
-        const agent = db.prepare('SELECT * FROM agents WHERE id = ?').get(request.params.id);
+        const workspaceId = request.user.workspace_id;
+
+        const agent = db.prepare('SELECT * FROM agents WHERE id = ? AND workspace_id = ?').get(request.params.id, workspaceId);
         if (!agent) return reply.code(404).send({ error: 'Agent not found' });
 
         const { name, description, system_prompt, model, capabilities, max_tokens, temperature, status } = request.body;
 
         db.prepare(`
-      UPDATE agents SET
-        name = COALESCE(?, name),
-        description = COALESCE(?, description),
-        system_prompt = COALESCE(?, system_prompt),
-        model = COALESCE(?, model),
-        capabilities = COALESCE(?, capabilities),
-        max_tokens = COALESCE(?, max_tokens),
-        temperature = COALESCE(?, temperature),
-        status = COALESCE(?, status),
-        updated_at = datetime('now')
-      WHERE id = ?
-    `).run(
+            UPDATE agents SET
+                name = COALESCE(?, name),
+                description = COALESCE(?, description),
+                system_prompt = COALESCE(?, system_prompt),
+                model = COALESCE(?, model),
+                capabilities = COALESCE(?, capabilities),
+                max_tokens = COALESCE(?, max_tokens),
+                temperature = COALESCE(?, temperature),
+                status = COALESCE(?, status),
+                updated_at = datetime('now')
+            WHERE id = ? AND workspace_id = ?
+        `).run(
             name || null,
             description ?? null,
             system_prompt || null,
@@ -72,7 +80,8 @@ export default async function agentsRoutes(fastify) {
             max_tokens || null,
             temperature ?? null,
             status || null,
-            request.params.id
+            request.params.id,
+            workspaceId
         );
 
         const updated = db.prepare('SELECT * FROM agents WHERE id = ?').get(request.params.id);
@@ -80,11 +89,14 @@ export default async function agentsRoutes(fastify) {
     });
 
     // DELETE agent
-    fastify.delete('/api/agents/:id', async (request, reply) => {
+    fastify.delete('/api/agents/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
         const db = getDb();
-        const agent = db.prepare('SELECT * FROM agents WHERE id = ?').get(request.params.id);
+        const workspaceId = request.user.workspace_id;
+
+        const agent = db.prepare('SELECT * FROM agents WHERE id = ? AND workspace_id = ?').get(request.params.id, workspaceId);
         if (!agent) return reply.code(404).send({ error: 'Agent not found' });
-        db.prepare('DELETE FROM agents WHERE id = ?').run(request.params.id);
+
+        db.prepare('DELETE FROM agents WHERE id = ? AND workspace_id = ?').run(request.params.id, workspaceId);
         return { success: true, id: request.params.id };
     });
 }

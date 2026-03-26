@@ -138,19 +138,14 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS settings (
-      key TEXT PRIMARY KEY,
+      workspace_id TEXT NOT NULL,
+      key TEXT NOT NULL,
       value TEXT NOT NULL,
-      updated_at TEXT DEFAULT (datetime('now'))
+      updated_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (workspace_id, key),
+      FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
     );
   `);
-
-  // Seed default settings
-  const insertSetting = db.prepare(
-    `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`
-  );
-  insertSetting.run('max_concurrent_agents', process.env.MAX_CONCURRENT_AGENTS || '5');
-  insertSetting.run('oversight_threshold', process.env.OVERSIGHT_CONFIDENCE_THRESHOLD || '0.7');
-  insertSetting.run('default_model', process.env.OPENAI_MODEL || 'gpt-4o-mini');
 
   console.log('✅ Database schema initialized');
 }

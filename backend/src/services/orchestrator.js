@@ -6,14 +6,15 @@ import { broadcast } from './websocket.js';
 
 const runningTasks = new Map();
 
-export async function launchTask({ title, description, input, agentId, priority, workspaceId = 'default-workspace' }) {
+export async function launchTask({ title, description, input, agentId, priority, workspaceId }) {
+    if (!workspaceId) throw new Error('workspaceId is required for launchTask');
     const db = getDb();
     const taskId = uuidv4();
 
     db.prepare(`
-    INSERT INTO tasks (id, workspace_id, title, description, input, agent_id, priority, status, planner_version, prompt_version)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', '1.0.0', '1.0.0')
-  `).run(taskId, workspaceId, title, description || '', input || description, agentId || null, priority || 'medium');
+        INSERT INTO tasks (id, workspace_id, title, description, input, agent_id, priority, status, planner_version, prompt_version)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', '1.0.0', '1.0.0')
+    `).run(taskId, workspaceId, title, description || '', input || description, agentId || null, priority || 'medium');
 
     broadcast({ type: 'task:created', data: { id: taskId, title, status: 'pending', workspace_id: workspaceId } });
 
@@ -29,9 +30,9 @@ export async function launchTask({ title, description, input, agentId, priority,
     return { id: taskId, status: 'pending' };
 }
 
-export async function cancelTask(taskId) {
+export async function cancelTask(taskId, workspaceId) {
     const db = getDb();
-    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND workspace_id = ?').get(taskId, workspaceId);
     if (!task) throw new Error('Task not found');
     if (task.status === 'completed' || task.status === 'failed') {
         throw new Error('Cannot cancel a finished task');
@@ -48,9 +49,9 @@ export async function cancelTask(taskId) {
     return { id: taskId, status: 'cancelled' };
 }
 
-export async function executeWorkflow(workflowId) {
+export async function executeWorkflow(workflowId, workspaceId) {
     const db = getDb();
-    const workflow = db.prepare('SELECT * FROM workflows WHERE id = ?').get(workflowId);
+    const workflow = db.prepare('SELECT * FROM workflows WHERE id = ? AND workspace_id = ?').get(workflowId, workspaceId);
     if (!workflow) throw new Error('Workflow not found');
 
     const steps = JSON.parse(workflow.steps || '[]');
@@ -77,6 +78,7 @@ export async function executeWorkflow(workflowId) {
                     input: enrichedInput,
                     agentId: step.agentId || null,
                     priority: 'high',
+                    workspaceId
                 });
 
                 // Wait for the task to complete

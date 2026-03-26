@@ -1,14 +1,18 @@
 'use client';
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useAuth } from './auth';
 
 export function useWebSocket() {
     const [connected, setConnected] = useState(false);
     const [lastEvent, setLastEvent] = useState(null);
+    const { user } = useAuth();
     const wsRef = useRef(null);
     const listenersRef = useRef(new Map());
     const reconnectTimeout = useRef(null);
 
     const connect = useCallback(() => {
+        if (!user) return; // Wait for user to be available
+
         const url = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001/ws';
         try {
             const ws = new WebSocket(url);
@@ -17,6 +21,12 @@ export function useWebSocket() {
             ws.onopen = () => {
                 setConnected(true);
                 console.log('🟢 WebSocket connected');
+                // Send auth message
+                ws.send(JSON.stringify({
+                    type: 'auth',
+                    workspaceId: user.workspace_id,
+                    token: localStorage.getItem('token') // For extra security if backend checks it
+                }));
             };
 
             ws.onmessage = (event) => {
@@ -48,7 +58,7 @@ export function useWebSocket() {
         } catch {
             reconnectTimeout.current = setTimeout(connect, 3000);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         connect();
@@ -70,5 +80,11 @@ export function useWebSocket() {
         };
     }, []);
 
-    return { connected, lastEvent, subscribe };
+    const broadcastLocal = useCallback((type, data) => {
+        if (wsRef.current && wsRef.current.readyState === 1) {
+            wsRef.current.send(JSON.stringify({ type, data }));
+        }
+    }, []);
+
+    return { connected, lastEvent, subscribe, broadcastLocal };
 }

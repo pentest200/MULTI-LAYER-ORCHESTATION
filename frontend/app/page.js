@@ -2,12 +2,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getDashboardStats } from '@/lib/api';
 import { useWebSocket } from '@/lib/websocket';
+import { useAuth } from '@/lib/auth';
 
 export default function DashboardPage() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { connected, subscribe } = useWebSocket();
+    const { user } = useAuth();
 
     const loadStats = useCallback(async () => {
         try {
@@ -65,9 +67,32 @@ export default function DashboardPage() {
 
     return (
         <div>
-            <div className="page-header">
-                <h1>Command Center</h1>
-                <p>Real-time overview of your AI agent fleet</p>
+            <div className="page-header" style={{ marginBottom: '48px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <span style={{
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: 'var(--accent-blue)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2px',
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                    }}>
+                        Control Plane
+                    </span>
+                </div>
+                <h1 style={{ fontSize: '40px', fontWeight: 900, marginBottom: '4px' }}>
+                    Welcome back, <span style={{
+                        background: 'linear-gradient(135deg, var(--text-primary), var(--accent-blue))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                    }}>{user?.name?.split(' ')[0] || 'User'}</span>
+                </h1>
+                <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
+                    Managing <strong style={{ color: 'var(--text-primary)' }}>{user?.workspace_name || 'Standard Workspace'}</strong> · Connected to orchestrator
+                </p>
             </div>
 
             {/* System Status Banner */}

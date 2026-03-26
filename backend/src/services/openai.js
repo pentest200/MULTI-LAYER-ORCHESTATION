@@ -1,22 +1,38 @@
 import OpenAI from 'openai';
+import { getDb } from '../db/connection.js';
 
-let client = null;
+const clients = new Map();
 
-function getClient() {
-    if (client) return client;
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey || apiKey === 'your_openai_api_key_here') {
-        throw new Error('OPENAI_API_KEY is not configured. Set it in backend/.env');
+function getClient(workspaceId) {
+    // Check if we have a client for this workspace
+    if (workspaceId && clients.has(workspaceId)) return clients.get(workspaceId);
+
+    let apiKey = process.env.OPENAI_API_KEY;
+
+    // If workspaceId is provided, check database for override
+    if (workspaceId) {
+        const db = getDb();
+        const setting = db.prepare('SELECT value FROM settings WHERE workspace_id = ? AND key = ?').get(workspaceId, 'openai_api_key');
+        if (setting?.value) {
+            apiKey = setting.value;
+        }
     }
-    client = new OpenAI({ apiKey });
+
+    if (!apiKey || apiKey === 'your_openai_api_key_here') {
+        throw new Error('OpenAI API Key is not configured for this workspace. Please set it in Settings.');
+    }
+
+    const client = new OpenAI({ apiKey });
+    if (workspaceId) clients.set(workspaceId, client);
     return client;
 }
 
 export async function chat(systemPrompt, userMessage, options = {}) {
-    const openai = getClient();
-    const model = options.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
-    const maxTokens = options.maxTokens || 4096;
-    const temperature = options.temperature ?? 0.7;
+    const { workspaceId, ...rest } = options;
+    const openai = getClient(workspaceId);
+    const model = rest.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const maxTokens = rest.maxTokens || 4096;
+    const temperature = rest.temperature ?? 0.7;
 
     const response = await openai.chat.completions.create({
         model,
@@ -35,7 +51,7 @@ export async function chat(systemPrompt, userMessage, options = {}) {
     };
 }
 
-export async function generatePlan(taskDescription, agentCapabilities) {
+export async function generatePlan(taskDescription, agentCapabilities, workspaceId) {
     const systemPrompt = `You are a task planning AI. Given a task description and agent capabilities, generate a structured execution plan.
 Return a JSON object with:
 - "steps": array of step objects with "description", "estimatedDuration", and "confidence" (0-1)
@@ -45,7 +61,7 @@ Return a JSON object with:
 
     const userMessage = `Task: ${taskDescription}\nAgent Capabilities: ${JSON.stringify(agentCapabilities)}`;
 
-    const result = await chat(systemPrompt, userMessage, { temperature: 0.3 });
+    const result = await chat(systemPrompt, userMessage, { temperature: 0.3, workspaceId });
 
     try {
         const cleaned = result.content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -60,7 +76,7 @@ Return a JSON object with:
     }
 }
 
-export async function analyzeResult(taskInput, taskOutput) {
+export async function analyzeResult(taskInput, taskOutput, workspaceId) {
     const systemPrompt = `You are a quality analysis AI. Analyze the output of a completed task and provide a quality assessment.
 Return a JSON object with:
 - "quality": number 0-1
@@ -70,7 +86,7 @@ Return a JSON object with:
 
     const userMessage = `Task Input: ${taskInput}\nTask Output: ${taskOutput}`;
 
-    const result = await chat(systemPrompt, userMessage, { temperature: 0.2 });
+    const result = await chat(systemPrompt, userMessage, { temperature: 0.2, workspaceId });
 
     try {
         const cleaned = result.content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -85,7 +101,16 @@ Return a JSON object with:
     }
 }
 
-export function isConfigured() {
-    const apiKey = process.env.OPENAI_API_KEY;
-    return apiKey && apiKey !== 'your_openai_api_key_here';
+export function isConfigured(workspaceId) {
+    try {
+        getClient(workspaceId);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function clearClientCache(workspaceId) {
+    if (workspaceId) clients.delete(workspaceId);
+    else clients.clear();
 }

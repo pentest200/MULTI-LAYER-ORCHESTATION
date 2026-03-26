@@ -2,8 +2,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 async function request(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
     const config = {
-        headers: { 'Content-Type': 'application/json', ...options.headers },
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+            ...options.headers,
+        },
         ...options,
     };
 
@@ -18,6 +24,11 @@ async function request(endpoint, options = {}) {
     }
     return res.json();
 }
+
+// Auth
+export const login = (credentials) => request('/api/auth/login', { method: 'POST', body: credentials });
+export const signup = (data) => request('/api/auth/signup', { method: 'POST', body: data });
+export const getMe = () => request('/api/auth/me');
 
 // Dashboard
 export const getDashboardStats = () => request('/api/dashboard/stats');
@@ -56,3 +67,7 @@ export const rejectOversight = (id, notes) => request(`/api/oversight/${id}/reje
 export const getSettings = () => request('/api/settings');
 export const updateSettings = (data) => request('/api/settings', { method: 'PUT', body: data });
 export const getHealth = () => request('/api/health');
+
+// Billing
+export const getBillingUsage = () => request('/api/billing/usage');
+export const getBillingStatus = () => request('/api/billing/status');

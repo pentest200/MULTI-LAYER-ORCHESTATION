@@ -40,6 +40,7 @@ export async function runAgentTask(taskId) {
             model,
             temperature,
             maxTokens,
+            workspaceId: task.workspace_id,
         });
 
         // Log usage

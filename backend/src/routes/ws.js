@@ -1,7 +1,8 @@
 import { addClient } from '../services/websocket.js';
 
 export default async function wsRoutes(fastify) {
-    fastify.get('/ws', { websocket: true }, (socket, request) => {
+    fastify.get('/ws', { websocket: true }, (connection, request) => {
+        const { socket } = connection;
         addClient(socket);
         socket.send(JSON.stringify({ type: 'connected', data: { message: 'Connected to Command Center' } }));
 
