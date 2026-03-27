@@ -175,15 +175,37 @@ export default function TasksPage() {
             </div>
 
             {tasks.length === 0 ? (
-                <div className="glass-card bento-item empty-state-hub animate-in" style={{ animationDelay: '0.3s' }}>
-                    <div className="empty-visual">
-                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="7.5 4.21 12 6.81 16.5 4.21" /><polyline points="7.5 19.79 7.5 14.6 3 12" /><polyline points="21 12 16.5 14.6 16.5 19.79" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+                <div className="glass-card empty-state-hub animate-in" style={{ animationDelay: '0.3s' }}>
+                    <div className="empty-visual-container">
+                        <div className="pulse-ring"></div>
+                        <div className="pulse-ring delay-1"></div>
+                        <div className="empty-icon-wrapper">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+                                <polyline points="7.5 19.79 7.5 14.6 3 12" />
+                            </svg>
+                        </div>
                     </div>
-                    <h3>MISSION_DECK_VACANT</h3>
-                    <p>Orchestration core idle. Awaiting user-defined mission parameters.</p>
-                    <button className="btn-technical" style={{ width: '240px' }} onClick={() => setShowModal(true)}>
-                        BOOT_MISSION_INITIATOR
-                    </button>
+                    <div className="empty-content">
+                        <label className="m-tag">{filter ? `FILTERED_PROTOCOL_${filter.toUpperCase()}` : 'CORE_SYSTEM_READY'}</label>
+                        <h3>{filter ? 'NO_MATCHING_INTEL' : 'MISSION_DECK_VACANT'}</h3>
+                        <p>{filter ? `No tasks found matching the ${filter} status protocol.` : 'Orchestration core idle. Awaiting user-defined mission parameters.'}</p>
+
+                        <div className="empty-actions">
+                            <button className="btn-technical primary-glow" onClick={() => setShowModal(true)}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                BOOT_MISSION_INITIATOR
+                            </button>
+                            {filter && (
+                                <button className="btn-technical-secondary" onClick={() => setFilter('')}>
+                                    RESET_DRILLED_FILTERS
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="glass-card section-card-hub animate-in" style={{ animationDelay: '0.3s' }}>
@@ -292,21 +314,23 @@ export default function TasksPage() {
                                         <textarea className="tech-textarea" value={form.input} onChange={e => setForm({ ...form, input: e.target.value })}
                                             placeholder="Enter detailed execution instructions..." />
                                     </div>
-                                    <div className="form-item">
-                                        <label>OPERATIVE_ASSIGNMENT</label>
-                                        <select className="tech-select" value={form.agentId} onChange={e => setForm({ ...form, agentId: e.target.value })}>
-                                            <option value="">AUTO_KERNEL_SELECT</option>
-                                            {agents.map(a => <option key={a.id} value={a.id}>{a.name.toUpperCase()}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="form-item">
-                                        <label>THREAT_PRIORITY_LVL</label>
-                                        <select className="tech-select" value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}>
-                                            <option value="low">LOW</option>
-                                            <option value="medium">MEDIUM</option>
-                                            <option value="high">HIGH</option>
-                                            <option value="critical">CRITICAL_V1</option>
-                                        </select>
+                                    <div className="form-row-2">
+                                        <div className="form-item">
+                                            <label>OPERATIVE_ASSIGNMENT</label>
+                                            <select className="tech-select" value={form.agentId} onChange={e => setForm({ ...form, agentId: e.target.value })}>
+                                                <option value="">AUTO_KERNEL_SELECT</option>
+                                                {agents.map(a => <option key={a.id} value={a.id}>{a.name.toUpperCase()}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-item">
+                                            <label>THREAT_PRIORITY_LVL</label>
+                                            <select className="tech-select" value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}>
+                                                <option value="low">LOW</option>
+                                                <option value="medium">MEDIUM</option>
+                                                <option value="high">HIGH</option>
+                                                <option value="critical">CRITICAL_V1</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -496,11 +520,11 @@ export default function TasksPage() {
                 .flow-graph-wrapper::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px); background-size: 30px 30px; pointer-events: none; }
 
                 /* ===== MISSION INITIATOR MODAL ===== */
-                .technical-init-modal { max-width: 660px; max-height: calc(100vh - 120px); }
-                .technical-form { padding: 28px 28px 8px; }
-                .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-                .form-item.full { grid-column: span 2; }
-                .form-item label { display: block; font-size: 10px; font-weight: 800; color: var(--text-secondary); letter-spacing: 1.5px; margin-bottom: 8px; text-transform: uppercase; }
+                .technical-init-modal { max-width: 760px; max-height: calc(100vh - 120px); }
+                .modal-body { padding: 0; }
+                .form-grid { display: flex; flex-direction: column; gap: 24px; padding: 32px; }
+                .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+                .form-item label { display: block; font-size: 10px; font-weight: 950; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 10px; text-transform: uppercase; }
 
                 .tech-input, .tech-select, .tech-textarea { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.2s; font-family: inherit; }
                 .tech-input:focus, .tech-select:focus, .tech-textarea:focus { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.05); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); }
@@ -515,8 +539,24 @@ export default function TasksPage() {
                 .btn-launch-sequence { flex: 2; height: 42px; background: var(--accent-blue); border: none; border-radius: 6px; color: #000; font-weight: 950; font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
                 .btn-launch-sequence:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(59, 130, 246, 0.4); }
 
-                .empty-state-hub { padding: 100px 40px; text-align: center; }
-                .empty-visual { color: var(--text-muted); opacity: 0.2; margin-bottom: 32px; }
+                .empty-state-hub { padding: 120px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 450px; background: radial-gradient(circle at center, rgba(59, 130, 246, 0.05) 0%, transparent 70%); }
+                .empty-visual-container { position: relative; width: 120px; height: 120px; margin-bottom: 40px; display: flex; align-items: center; justify-content: center; }
+                .empty-icon-wrapper { position: relative; z-index: 2; color: var(--accent-blue); filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4)); }
+                
+                .pulse-ring { position: absolute; width: 100%; height: 100%; border: 1px solid var(--accent-blue); border-radius: 50%; opacity: 0; animation: pulse-out 3s infinite cubic-bezier(0.19, 1, 0.22, 1); }
+                .pulse-ring.delay-1 { animation-delay: 1.5s; }
+                @keyframes pulse-out { 0% { transform: scale(0.5); opacity: 0; } 50% { opacity: 0.3; } 100% { transform: scale(1.5); opacity: 0; } }
+
+                .empty-content { max-width: 500px; }
+                .empty-content h3 { font-size: 24px; font-weight: 950; color: #fff; margin: 12px 0 16px; letter-spacing: -0.5px; }
+                .empty-content p { color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 32px; }
+                
+                .empty-actions { display: flex; gap: 16px; justify-content: center; }
+                .btn-technical.primary-glow { background: var(--accent-blue); color: #000; box-shadow: 0 0 40px rgba(59, 130, 246, 0.2); border: none; font-size: 11px; padding: 12px 24px; height: 44px; display: flex; align-items: center; border-radius: 6px; font-weight: 950; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+                .btn-technical.primary-glow:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(59, 130, 246, 0.4); }
+                .btn-technical-secondary { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); letter-spacing: 1px; font-size: 9px; font-weight: 950; border-radius: 6px; padding: 0 20px; cursor: pointer; transition: all 0.2s; height: 44px; }
+                .btn-technical-secondary:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); }
+
                 .animate-in { animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards; opacity: 0; }
                 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 

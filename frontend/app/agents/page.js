@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { getAgents, createAgent, updateAgent, deleteAgent } from '@/lib/api';
 import { useWebSocket } from '@/lib/websocket';
 
@@ -27,6 +28,15 @@ export default function AgentsPage() {
         const unsub = subscribe('agent:update', loadAgents);
         return unsub;
     }, [subscribe, loadAgents]);
+
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [showModal]);
 
     const openCreate = () => {
         setEditAgent(null);
@@ -186,9 +196,9 @@ export default function AgentsPage() {
             )}
 
             {/* Modal */}
-            {showModal && (
+            {showModal && createPortal(
                 <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal agent-init-modal" onClick={e => e.stopPropagation()}>
+                    <div className="modal agent-init-modal animate-in" onClick={e => e.stopPropagation()}>
                         <div className="modal-technical-header">
                             <div className="title-group">
                                 <span className="m-tag">{editAgent ? 'EDIT_NEURAL_v2' : 'INIT_AGENT_v4'}</span>
@@ -200,29 +210,35 @@ export default function AgentsPage() {
                         <div className="modal-body agent-form-body">
                             <form id="agent-form" onSubmit={handleSubmit} className="technical-form">
                                 <div className="form-grid">
-                                    <div className="form-item">
-                                        <label>OPERATIVE_NAME_TAG *</label>
-                                        <input className="tech-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required placeholder="e.g. Analysis Unit" />
+                                    <div className="form-row-2">
+                                        <div className="form-item">
+                                            <label>OPERATIVE_NAME_TAG *</label>
+                                            <input className="tech-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required placeholder="e.g. Analysis Unit" />
+                                        </div>
+                                        <div className="form-item">
+                                            <label>OPERATIONAL_BRIEF</label>
+                                            <input className="tech-input" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Mission context" />
+                                        </div>
                                     </div>
-                                    <div className="form-item">
-                                        <label>OPERATIONAL_BRIEF</label>
-                                        <input className="tech-input" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Mission context" />
-                                    </div>
-                                    <div className="form-item">
-                                        <label>NEURAL_ARCHITECTURE</label>
-                                        <select className="tech-select" value={form.model} onChange={e => setForm({ ...form, model: e.target.value })}>
-                                            <option value="gpt-4o">GPT-4o</option>
-                                            <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                            <option value="o1">O1_HEAVY</option>
-                                            <option value="o1-mini">O1_MINI</option>
-                                            <option value="gpt-4-turbo">GPT-4_TURBO</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-item">
-                                        <label>COGNITIVE_TEMP ({form.temperature})</label>
-                                        <input type="range" min="0" max="2" step="0.1" value={form.temperature}
-                                            onChange={e => setForm({ ...form, temperature: e.target.value })}
-                                            className="tech-range" />
+                                    <div className="form-row-2">
+                                        <div className="form-item">
+                                            <label>NEURAL_ARCHITECTURE</label>
+                                            <select className="tech-select" value={form.model} onChange={e => setForm({ ...form, model: e.target.value })}>
+                                                <option value="gpt-4o">GPT-4o</option>
+                                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                                <option value="o1">O1_HEAVY</option>
+                                                <option value="o1-mini">O1_MINI</option>
+                                                <option value="gpt-4-turbo">GPT-4_TURBO</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-item">
+                                            <label>COGNITIVE_TEMP ({form.temperature})</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <input type="range" min="0" max="2" step="0.1" value={form.temperature}
+                                                    onChange={e => setForm({ ...form, temperature: e.target.value })}
+                                                    className="tech-range" />
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="form-item full">
                                         <label>SUBSYSTEM_CAPABILITIES</label>
@@ -242,12 +258,14 @@ export default function AgentsPage() {
                             <button type="submit" form="agent-form" className="btn-launch-sequence">COMMIT_NEURAL_STAKE</button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            <style jsx>{`
-                .modal-overlay { position: fixed; inset: 0; background: rgba(5, 6, 10, 0.94); backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 24px; overflow: hidden; }
-                .modal { background: #0d0f17; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; box-shadow: 0 40px 120px rgba(0,0,0,0.95); width: 100%; display: flex; flex-direction: column; overflow: hidden; animation: scaleIn 0.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+            <style jsx global>{`
+                .modal-overlay { position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(5, 6, 10, 0.98); backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 24px; overflow: hidden; }
+                .modal { background: #0d0f17; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; box-shadow: 0 40px 120px rgba(0,0,0,0.95); width: 100%; display: flex; flex-direction: column; overflow: hidden; }
+                .animate-in { animation: scaleIn 0.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
                 @keyframes scaleIn { from { transform: scale(0.95) translateY(-12px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
                 .modal-technical-header { background: rgba(255,255,255,0.02); padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
@@ -259,11 +277,12 @@ export default function AgentsPage() {
                 .modal-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0; }
                 .agent-form-body { max-height: calc(100vh - 120px); }
                 .modal-technical-actions { padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 16px; flex-shrink: 0; background: rgba(13, 15, 23, 0.8); }
-                .agent-init-modal { max-width: 760px; }
+                .agent-init-modal { max-width: 760px; margin: auto; }
                 .technical-form { padding: 32px 40px; }
-                .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; row-gap: 32px; }
-                .form-item.full { grid-column: span 2; }
-                .form-item label { display: block; font-size: 9px; font-weight: 900; color: var(--accent-blue); opacity: 0.8; letter-spacing: 2.5px; margin-bottom: 12px; text-transform: uppercase; }
+                .form-grid { display: flex; flex-direction: column; gap: 24px; }
+                .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+                .form-item.full { width: 100%; }
+                .form-item label { display: block; font-size: 9px; font-weight: 950; color: var(--text-muted); opacity: 0.8; letter-spacing: 2.5px; margin-bottom: 12px; text-transform: uppercase; }
 
                 .tech-input, .tech-select, .tech-textarea { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px 18px; color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.2s; font-family: inherit; }
                 .tech-input:focus, .tech-select:focus, .tech-textarea:focus { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.05); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
@@ -281,7 +300,6 @@ export default function AgentsPage() {
                 .status-active { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.2); }
                 .status-idle { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
             `}</style>
-
 
         </div>
     );
