@@ -157,10 +157,13 @@ export default function SettingsPage() {
                             <label className="form-label">Preferred Intelligence Model</label>
                             <select className="form-select" value={settings.default_model || 'gpt-4o-mini'}
                                 onChange={e => updateField('default_model', e.target.value)}>
+                                <option value="gpt-4o">GPT-4o (Omni - High Performance)</option>
                                 <option value="gpt-4o-mini">GPT-4o Mini (Fast & Cost-Effective)</option>
-                                <option value="gpt-4o">GPT-4o (High Performance)</option>
-                                <option value="o1">O1 (Reasoning Heavy)</option>
+                                <option value="o1">O1 (Advanced Reasoning)</option>
                                 <option value="o1-mini">O1 Mini (Efficient Reasoning)</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo (Large Context)</option>
+                                <option value="gpt-4">GPT-4 (Reliable Standard)</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (legacy)</option>
                             </select>
                         </div>
                         <div style={{

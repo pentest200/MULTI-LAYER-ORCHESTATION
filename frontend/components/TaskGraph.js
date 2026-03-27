@@ -48,19 +48,44 @@ export default function TaskGraph({ taskId }) {
                 {nodes.map((node, index) => (
                     <div key={node.id} className="node-wrapper">
                         {index > 0 && (
-                            <div className={`connector ${nodes[index - 1].status === 'success' ? 'connector-active' : ''}`} />
+                            <div className={`connector ${nodes[index - 1].status === 'success' ? 'connector-active' : ''}`}>
+                                <div className="connector-pulse"></div>
+                            </div>
                         )}
                         <div className={`graph-node glass-card status-${node.status}`}>
                             <div className="node-icon">
-                                {node.status === 'running' ? '⏳' :
-                                    node.status === 'success' ? '✅' :
-                                        node.status === 'failed' ? '❌' :
-                                            node.status === 'blocked' ? '✋' : '⚪'}
+                                {node.status === 'running' ? (
+                                    <svg className="spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                                ) : node.status === 'success' ? (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                ) : node.status === 'failed' ? (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                ) : (
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }} />
+                                )}
                             </div>
                             <div className="node-content">
-                                <div className="node-name">{node.name}</div>
-                                <div className="node-status-text">{node.status}</div>
-                                {node.output && <div className="node-output-preview">{node.output.slice(0, 100)}...</div>}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <div className="node-step-label">STEP {index + 1}</div>
+                                        <div className="node-name">{node.name}</div>
+                                    </div>
+                                    <div className="node-time">
+                                        {node.created_at ? new Date(node.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--'}
+                                    </div>
+                                </div>
+
+                                <div className="node-meta-row">
+                                    <span className="node-status-badge">{node.status}</span>
+                                    {node.duration && <span className="node-duration">{node.duration}ms</span>}
+                                </div>
+
+                                {node.output && (
+                                    <div className="node-output-container">
+                                        <div className="output-header">CONTENT_OUTPUT</div>
+                                        <div className="node-output-preview">{node.output}</div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -81,7 +106,7 @@ export default function TaskGraph({ taskId }) {
                     align-items: center;
                     gap: 0;
                     width: 100%;
-                    max-width: 600px;
+                    max-width: 700px;
                 }
                 .node-wrapper {
                     display: flex;
@@ -92,87 +117,147 @@ export default function TaskGraph({ taskId }) {
                 }
                 .graph-node {
                     width: 100%;
-                    padding: 24px;
+                    padding: 28px;
                     display: flex;
-                    gap: 20px;
-                    margin: 10px 0;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    background: rgba(13, 15, 23, 0.7);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    gap: 24px;
+                    margin: 12px 0;
+                    border: 1px solid var(--border-glass);
+                    background: rgba(13, 15, 23, 0.4);
+                    backdrop-filter: blur(10px);
+                    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
                     position: relative;
                     z-index: 2;
+                    border-radius: 16px;
                 }
                 .graph-node:hover {
-                    transform: translateX(10px) scale(1.02);
-                    background: rgba(13, 15, 23, 0.9);
+                    transform: translateX(8px);
+                    background: rgba(13, 15, 23, 0.6);
                     border-color: rgba(255, 255, 255, 0.2);
                 }
                 .status-running {
                     border-color: var(--accent-blue);
-                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-                    animation: node-pulse 2s infinite;
+                    box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+                    color: var(--accent-blue);
                 }
                 .status-success {
-                    border-color: var(--accent-green);
+                    border-color: rgba(16, 185, 129, 0.3);
+                    color: var(--accent-green);
                 }
                 .status-failed {
                     border-color: var(--accent-red);
-                }
-                .status-blocked {
-                    border-color: var(--accent-amber);
+                    color: var(--accent-red);
                 }
                 .node-icon {
-                    width: 48px;
-                    height: 48px;
-                    background: rgba(255, 255, 255, 0.05);
+                    width: 44px;
+                    height: 44px;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
                     border-radius: 12px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 20px;
                     flex-shrink: 0;
+                    color: inherit;
                 }
                 .node-content {
                     flex: 1;
+                    min-width: 0;
+                }
+                .node-step-label {
+                    font-size: 9px;
+                    font-weight: 900;
+                    letter-spacing: 1.5px;
+                    opacity: 0.5;
+                    margin-bottom: 4px;
+                    color: var(--text-primary);
                 }
                 .node-name {
-                    font-weight: 700;
-                    font-size: 15px;
+                    font-weight: 800;
+                    font-size: 17px;
                     color: var(--text-primary);
-                    margin-bottom: 4px;
+                    letter-spacing: -0.3px;
                 }
-                .node-status-text {
+                .node-time {
                     font-size: 11px;
+                    font-family: var(--font-mono);
+                    opacity: 0.4;
+                    font-weight: 600;
+                }
+                .node-meta-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-top: 8px;
+                }
+                .node-status-badge {
+                    font-size: 10px;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    font-weight: 800;
-                    opacity: 0.6;
+                    font-weight: 900;
+                    opacity: 0.8;
+                }
+                .node-duration {
+                    font-size: 10px;
+                    font-weight: 700;
+                    opacity: 0.4;
+                    padding-left: 12px;
+                    border-left: 1px solid rgba(255,255,255,0.1);
+                }
+                .node-output-container {
+                    margin-top: 20px;
+                    background: rgba(0, 0, 0, 0.25);
+                    border: 1px solid rgba(255, 255, 255, 0.03);
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                .output-header {
+                    font-size: 8px;
+                    font-weight: 900;
+                    letter-spacing: 1px;
+                    padding: 6px 12px;
+                    background: rgba(255,255,255,0.02);
+                    opacity: 0.4;
+                    border-bottom: 1px solid rgba(255,255,255,0.03);
                 }
                 .node-output-preview {
-                    margin-top: 12px;
-                    padding: 10px;
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 8px;
+                    padding: 12px;
                     font-size: 12px;
                     color: var(--text-secondary);
                     font-family: var(--font-mono);
+                    line-height: 1.6;
+                    max-height: 120px;
+                    overflow-y: auto;
                 }
                 .connector {
                     width: 2px;
-                    height: 30px;
-                    background: rgba(255, 255, 255, 0.1);
+                    height: 24px;
+                    background: rgba(255, 255, 255, 0.05);
                     position: relative;
                     z-index: 1;
                 }
                 .connector-active {
                     background: var(--accent-green);
-                    box-shadow: 0 0 10px var(--accent-green);
+                    box-shadow: 0 0 15px var(--accent-green);
                 }
-                @keyframes node-pulse {
-                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+                .connector-pulse {
+                    position: absolute;
+                    top: 0; left: 50%;
+                    width: 4px; height: 4px;
+                    background: white;
+                    border-radius: 50%;
+                    transform: translateX(-50%);
+                    opacity: 0;
                 }
+                .connector-active .connector-pulse {
+                    animation: flow-pulse 2s infinite;
+                }
+                @keyframes flow-pulse {
+                    0% { top: 0; opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { top: 100%; opacity: 0; }
+                }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .spin { animation: spin 2s linear infinite; }
             `}</style>
         </div>
     );

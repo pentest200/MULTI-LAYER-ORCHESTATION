@@ -210,9 +210,13 @@ export default function AgentsPage() {
                                             <div className="form-group" style={{ margin: 0 }}>
                                                 <label className="form-label">Model</label>
                                                 <select className="form-select" value={form.model} onChange={e => setForm({ ...form, model: e.target.value })}>
-                                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
                                                     <option value="gpt-4o">GPT-4o</option>
+                                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                                    <option value="o1">O1</option>
+                                                    <option value="o1-mini">O1 Mini</option>
                                                     <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                                    <option value="gpt-4">GPT-4</option>
+                                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                                                 </select>
                                             </div>
                                             <div className="form-group" style={{ margin: 0 }}>
