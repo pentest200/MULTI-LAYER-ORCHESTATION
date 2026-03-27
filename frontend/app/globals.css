@@ -892,6 +892,93 @@ input[type="number"]::-webkit-inner-spin-button {
   animation: slideUp 0.4s ease forwards;
 }
 
+/* ===== PAGE TRANSITIONS ===== */
+.page-transition {
+  transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+  will-change: opacity, transform, filter;
+}
+
+.page-transition-enter {
+  animation: pageEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.page-transition-exit {
+  animation: pageExit 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes pageExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.995);
+    filter: blur(3px);
+  }
+}
+
+/* Stagger animation for children */
+.stagger-in>* {
+  opacity: 0;
+  animation: slideUp 0.45s ease forwards;
+}
+
+.stagger-in>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-in>*:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.stagger-in>*:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.stagger-in>*:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.stagger-in>*:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.stagger-in>*:nth-child(6) {
+  animation-delay: 250ms;
+}
+
+.stagger-in>*:nth-child(7) {
+  animation-delay: 300ms;
+}
+
+.stagger-in>*:nth-child(8) {
+  animation-delay: 350ms;
+}
+
+/* Sidebar nav click ripple */
+.nav-item:active,
+.nav-item-active:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 6px;
