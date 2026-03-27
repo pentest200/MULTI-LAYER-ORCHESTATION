@@ -1,11 +1,8 @@
 {
   "/page": "app/page.js",
   "/agents/page": "app/agents/page.js",
-  "/signup/page": "app/signup/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/tasks/page": "app/tasks/page.js",
-  "/workflows/page": "app/workflows/page.js",
   "/oversight/page": "app/oversight/page.js",
-  "/analytics/page": "app/analytics/page.js",
-  "/billing/page": "app/billing/page.js"
+  "/billing/page": "app/billing/page.js",
+  "/tasks/page": "app/tasks/page.js",
+  "/workflows/page": "app/workflows/page.js"
 }

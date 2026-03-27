@@ -27,8 +27,15 @@ export default function TasksPage() {
     }, [filter]);
 
     const loadAgents = useCallback(async () => {
-        try { setAgents(await getAgents()); } catch { }
-    }, []);
+        try {
+            const data = await getAgents();
+            setAgents(data);
+            // Auto-select first agent if none selected
+            if (data.length > 0 && !form.agentId) {
+                setForm(prev => ({ ...prev, agentId: data[0].id }));
+            }
+        } catch { }
+    }, [form.agentId]);
 
     useEffect(() => { loadTasks(); loadAgents(); }, [loadTasks, loadAgents]);
     useEffect(() => {
@@ -59,6 +66,15 @@ export default function TasksPage() {
         } catch (e) { console.error(e); }
         finally { setSuggesting(false); }
     };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (form.title && form.title.length > 5 && !form.input && !suggesting && showModal) {
+                handleSuggest();
+            }
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, [form.title, showModal]);
 
     const handleCancel = async (id) => {
         if (!confirm('Cancel this task?')) return;

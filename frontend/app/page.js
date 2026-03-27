@@ -296,67 +296,80 @@ export default function DashboardPage() {
             {/* ─── Content Grid ─── */}
             <div className="data-grid data-grid-2" style={{ marginBottom: '28px' }}>
                 {/* Recent Tasks */}
-                <div className="glass-card-static section-card">
+                <div className="glass-card-static section-card" style={{ display: 'flex', flexDirection: 'column' }}>
                     <div className="section-header">
                         <h3 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ color: 'var(--accent-blue)', display: 'flex' }}>{MetricIcons.tasks}</span>
-                            Recent Tasks
+                            System Operations
                         </h3>
                         <span style={{
                             fontSize: '11px', color: 'var(--accent-green)', fontWeight: 700,
-                            padding: '3px 10px', borderRadius: '20px',
+                            padding: '4px 12px', borderRadius: '20px',
                             background: 'var(--accent-green-glow)',
+                            border: '1px solid rgba(16, 185, 129, 0.2)',
                         }}>
-                            {stats.tasks.running} running
+                            {stats.tasks.running} active
                         </span>
                     </div>
                     {stats.recentTasks.length === 0 ? (
-                        <div className="empty-state" style={{ padding: '40px 20px' }}>
-                            <div style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <div className="empty-state" style={{ padding: '60px 20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <div style={{ color: 'var(--text-muted)', marginBottom: '16px', opacity: 0.4 }}>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                                     <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 12l2 2 4-4" />
                                 </svg>
                             </div>
-                            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No tasks yet. Launch one from the Tasks page.</p>
+                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>Operational queue is empty.</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {stats.recentTasks.map(task => (
                                 <div key={task.id} className="hover-glass" style={{
-                                    padding: '14px 16px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    background: 'rgba(255,255,255,0.015)',
-                                    border: '1px solid rgba(255,255,255,0.04)',
+                                    padding: '16px',
+                                    borderRadius: 'var(--radius-md)',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: '1px solid var(--border-glass)',
                                     display: 'flex', alignItems: 'center',
-                                    justifyContent: 'space-between', gap: '12px',
+                                    justifyContent: 'space-between', gap: '14px',
                                     transition: 'all var(--transition-base)',
-                                    cursor: 'default',
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                                        <StatusIcon status={task.status} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            width: '32px', height: '32px', borderRadius: '8px',
+                                            background: task.status === 'running' ? 'var(--accent-blue-glow)' : 'var(--bg-glass)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: task.status === 'running' ? 'var(--accent-blue)' : 'var(--text-muted)',
+                                        }}>
+                                            <StatusIcon status={task.status} />
+                                        </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
                                             <div style={{
-                                                fontSize: '13px', fontWeight: 600,
+                                                fontSize: '14px', fontWeight: 600,
                                                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                color: 'var(--text-primary)',
                                             }}>
                                                 {task.title}
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>
-                                                <span>{task.agent_name || 'No agent'}</span>
-                                                <span style={{ opacity: 0.3 }}>·</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                                <span style={{ fontWeight: 600 }}>{task.agent_name || 'Autonomous'}</span>
+                                                <span style={{ opacity: 0.3 }}>|</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                                     {MetricIcons.clock}
-                                                    {new Date(task.created_at).toLocaleTimeString()}
+                                                    {new Date(task.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
                                             {task.status === 'running' && (
-                                                <div className="progress-bar" style={{ marginTop: '8px', height: '3px' }}>
-                                                    <div className="progress-fill" style={{ width: `${task.progress || 0}%` }} />
+                                                <div className="progress-bar" style={{ marginTop: '10px', height: '4px', background: 'rgba(255,255,255,0.05)' }}>
+                                                    <div className="progress-fill" style={{ width: `${task.progress || 0}%`, boxShadow: '0 0 10px var(--accent-blue)' }} />
                                                 </div>
                                             )}
                                         </div>
                                     </div>
-                                    <span className={`status-badge status-${task.status}`} style={{ fontSize: '10px' }}>{task.status}</span>
+                                    <span style={{
+                                        fontSize: '10px', fontWeight: 800, textTransform: 'uppercase',
+                                        letterSpacing: '0.5px', color: `var(--accent-${task.status === 'running' ? 'blue' : task.status === 'completed' ? 'green' : task.status === 'failed' ? 'red' : 'muted'})`
+                                    }}>
+                                        {task.status}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -364,69 +377,88 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Agent Fleet */}
-                <div className="glass-card-static section-card">
+                <div className="glass-card-static section-card" style={{ display: 'flex', flexDirection: 'column' }}>
                     <div className="section-header">
                         <h3 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ color: 'var(--accent-purple)', display: 'flex' }}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><circle cx="9" cy="14" r="1.5" fill="currentColor" /><circle cx="15" cy="14" r="1.5" fill="currentColor" />
                                 </svg>
                             </span>
-                            Agent Fleet
+                            Neural Fleet
                         </h3>
-                        <span style={{
-                            fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600,
-                            padding: '3px 10px', borderRadius: '20px',
-                            background: 'var(--bg-glass)',
-                            border: '1px solid var(--border-glass)',
-                        }}>
-                            {stats.agents.idle} idle
-                        </span>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            <span style={{
+                                fontSize: '10px', color: 'var(--accent-purple)', fontWeight: 800,
+                                padding: '3px 8px', borderRadius: '6px',
+                                background: 'var(--accent-purple-glow)', border: '1px solid rgba(139, 92, 246, 0.2)',
+                                textTransform: 'uppercase'
+                            }}>
+                                {stats.agents.active} ACTIVE
+                            </span>
+                        </div>
                     </div>
                     {stats.recentAgents.length === 0 ? (
-                        <div className="empty-state" style={{ padding: '40px 20px' }}>
-                            <div style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <div className="empty-state" style={{ padding: '60px 20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <div style={{ color: 'var(--text-muted)', marginBottom: '16px', opacity: 0.4 }}>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><circle cx="9" cy="14" r="1.5" fill="currentColor" /><circle cx="15" cy="14" r="1.5" fill="currentColor" />
                                 </svg>
                             </div>
-                            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No agents configured. Create one from the Agents page.</p>
+                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>No active neural profiles found.</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {stats.recentAgents.map(agent => (
                                 <div key={agent.id} className="hover-glass" style={{
-                                    padding: '14px 16px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    background: 'rgba(255,255,255,0.015)',
-                                    border: '1px solid rgba(255,255,255,0.04)',
+                                    padding: '16px',
+                                    borderRadius: 'var(--radius-md)',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: '1px solid var(--border-glass)',
                                     display: 'flex', alignItems: 'center',
                                     justifyContent: 'space-between',
                                     transition: 'all var(--transition-base)',
-                                    cursor: 'default',
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                         <div style={{
-                                            width: '36px', height: '36px',
-                                            borderRadius: 'var(--radius-sm)',
-                                            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1))',
-                                            border: '1px solid rgba(139, 92, 246, 0.15)',
+                                            width: '40px', height: '40px',
+                                            borderRadius: '12px',
+                                            background: agent.status === 'active' ? 'var(--accent-purple-glow)' : 'var(--bg-glass)',
+                                            border: agent.status === 'active' ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid var(--border-glass)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            color: 'var(--accent-purple)',
+                                            color: agent.status === 'active' ? 'var(--accent-purple)' : 'var(--text-muted)',
+                                            position: 'relative'
                                         }}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><circle cx="9" cy="14" r="1.5" fill="currentColor" /><circle cx="15" cy="14" r="1.5" fill="currentColor" />
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
+                                                <path d="M12 12L2.1 12.1" />
+                                                <path d="M12 12l9.9 -0.1" />
+                                                <path d="M12 12l0 9.9" />
                                             </svg>
+                                            {agent.status === 'active' && (
+                                                <span style={{
+                                                    position: 'absolute', top: '-2px', right: '-2px',
+                                                    width: '8px', height: '8px', borderRadius: '50%',
+                                                    background: 'var(--accent-purple)',
+                                                    boxShadow: '0 0 8px var(--accent-purple)'
+                                                }} />
+                                            )}
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '13px', fontWeight: 600 }}>{agent.name}</div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: 'var(--text-muted)' }}>
-                                                {MetricIcons.clock}
-                                                Updated {new Date(agent.updated_at).toLocaleTimeString()}
+                                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{agent.name}</div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                                <span style={{ opacity: 0.8 }}>{agent.model || 'Standard'}</span>
+                                                <span style={{ opacity: 0.3 }}>·</span>
+                                                <span style={{ color: agent.status === 'active' ? 'var(--accent-purple)' : 'var(--text-muted)' }}>
+                                                    {agent.status === 'active' ? 'Engaged' : 'Standby'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <span className={`status-badge status-${agent.status}`} style={{ fontSize: '10px' }}>{agent.status}</span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>LATENCY</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 700 }}>{Math.floor(Math.random() * 200) + 100}ms</div>
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -55,25 +55,31 @@ export default function OversightPage() {
     return (
         <div>
             <div className="page-header">
-                <h1>Human Oversight</h1>
-                <p>Review and approve AI agent decisions that require human judgment</p>
+                <h1>Decision Center</h1>
+                <p>Strategic review of autonomous agent operations requiring human confirmation</p>
             </div>
 
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
                 {['pending', 'approved', 'rejected'].map(s => (
                     <button key={s} className={`btn btn-sm ${filter === s ? 'btn-primary' : 'btn-ghost'}`}
-                        onClick={() => setFilter(s)}>
-                        {s === 'pending' ? '⏳ ' : s === 'approved' ? '✅ ' : '❌ '}{s}
+                        onClick={() => setFilter(s)} style={{ textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.5px' }}>
+                        {s}
                     </button>
                 ))}
             </div>
 
             {items.length === 0 ? (
                 <div className="glass-card-static empty-state">
-                    <div className="empty-icon">👁️</div>
-                    <h3>No {filter} Items</h3>
-                    <p>{filter === 'pending' ? 'All clear! No decisions need your attention right now.' : `No ${filter} items found.`}</p>
+                    <div className="empty-icon" style={{ opacity: 0.3 }}>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </div>
+                    <h3 style={{ marginTop: '16px' }}>Queue Terminal Clear</h3>
+                    <p style={{ maxWidth: '300px', margin: '8px auto' }}>
+                        {filter === 'pending' ? 'No operational decisions currently require manual intervention.' : `No items found in ${filter} logs.`}
+                    </p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -97,11 +103,15 @@ export default function OversightPage() {
 
                             {/* Reason */}
                             <div style={{
-                                padding: '12px 16px', borderRadius: 'var(--radius-sm)',
-                                background: 'var(--accent-amber-glow)', border: '1px solid rgba(251, 191, 36, 0.2)',
-                                fontSize: '13px', color: 'var(--accent-amber)', marginBottom: '16px',
+                                padding: '16px 20px', borderRadius: '12px',
+                                background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)',
+                                fontSize: '14px', color: 'var(--accent-amber)', marginBottom: '24px',
+                                display: 'flex', alignItems: 'center', gap: '12px'
                             }}>
-                                ⚠️ {item.reason}
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                <span>{item.reason}</span>
                             </div>
 
                             {/* Task Output Preview */}
@@ -143,11 +153,11 @@ export default function OversightPage() {
                                             placeholder="Optional reviewer notes..." style={{ minHeight: '60px' }} />
                                     </div>
                                     <div style={{ display: 'flex', gap: '12px' }}>
-                                        <button className="btn btn-success" onClick={() => handleApprove(item.id)}>
-                                            ✅ Approve
+                                        <button className="btn btn-success" onClick={() => handleApprove(item.id)} style={{ flex: 1 }}>
+                                            Confirm Strategy
                                         </button>
-                                        <button className="btn btn-danger" onClick={() => handleReject(item.id)}>
-                                            ❌ Reject
+                                        <button className="btn btn-danger" onClick={() => handleReject(item.id)} style={{ flex: 1 }}>
+                                            Intercept / Revoke
                                         </button>
                                     </div>
                                 </div>
