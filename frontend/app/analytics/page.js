@@ -109,14 +109,27 @@ export default function AnalyticsPage() {
                     })}
                 </svg>
 
-                <div className="topology-legend">
-                    <div className="legend-item">
-                        <span className="dot" style={{ background: 'var(--accent-blue)' }}></span>
-                        SYS_PEAK
+                <div className="topology-footer">
+                    <div className="topology-legend">
+                        <div className="legend-item">
+                            <span className="dot" style={{ background: 'var(--accent-blue)' }}></span>
+                            <span>SYS_PEAK</span>
+                        </div>
+                        <div className="legend-item">
+                            <span className="dot" style={{ background: 'var(--accent-green)' }}></span>
+                            <span>SYNC_OK</span>
+                        </div>
                     </div>
-                    <div className="legend-item">
-                        <span className="dot" style={{ background: 'var(--accent-green)' }}></span>
-                        SYNC_OK
+
+                    <div className="topology-ovr-stats">
+                        <div className="ovr-row">
+                            <label>NET_NODES</label>
+                            <span className="ovr-value">{stats?.agents?.active || 0}</span>
+                        </div>
+                        <div className="ovr-row">
+                            <label>NET_LATENCY</label>
+                            <span className="ovr-value highlight">24<small>ms</small></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -179,58 +192,85 @@ export default function AnalyticsPage() {
         <div className="analytics-container">
             <header className="page-header animate-in">
                 <div className="header-meta">
-                    <span className="intel-tag">ORCHESTRATION INTEL</span>
+                    <div className="intel-segment">
+                        <span className="intel-tag">NEURAL_CORE_v4.2</span>
+                        <div className="pulse-line"></div>
+                    </div>
                     <div className="system-status-pill">
-                        <span className="status-dot"></span>
-                        SYSTEM NOMINAL
+                        <div className="status-dot"></div>
+                        <span>SYSTEM_NOMINAL_OVR</span>
                     </div>
                 </div>
-                <h1 className="dashboard-title">Chakraview <span>Neural Core</span></h1>
+                <h1 className="dashboard-title">
+                    <span className="title-alt">CHAKRAVIEW</span>
+                    <span className="title-main">NEURAL CORE</span>
+                </h1>
+                <div className="header-decoration"></div>
             </header>
 
-            {/* Top Row: Mini Stats */}
+            {/* Top Row: Elite Mini Stats */}
             <div className="stats-row">
                 <div className="stat-card-mini animate-in" style={{ animationDelay: '0s' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-blue)' }}>📈</div>
-                    <div className="stat-info">
-                        <label>SYSTEM ACCURACY</label>
-                        <div className="val-group">
-                            <h3>{successRate}</h3>
-                            <span className="unit">%</span>
+                    <div className="stat-card-inner">
+                        <div className="stat-icon-wrapper blue">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
+                        </div>
+                        <div className="stat-data">
+                            <label>NODE_PRECISION</label>
+                            <div className="val-group">
+                                <h3>{successRate}</h3>
+                                <span className="unit">%</span>
+                            </div>
                         </div>
                     </div>
+                    <div className="card-accent"></div>
                 </div>
 
                 <div className="stat-card-mini animate-in" style={{ animationDelay: '0.1s' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)' }}>🤖</div>
-                    <div className="stat-info">
-                        <label>ACTIVE AGENTS</label>
-                        <div className="val-group">
-                            <h3>{stats?.agents?.active || 0}</h3>
-                            <span className="unit">/ {stats?.agents?.total || 0}</span>
+                    <div className="stat-card-inner">
+                        <div className="stat-icon-wrapper green">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                        </div>
+                        <div className="stat-data">
+                            <label>ACTIVE_ENTITIES</label>
+                            <div className="val-group">
+                                <h3>{stats?.agents?.active || 0}</h3>
+                                <span className="unit">/ {stats?.agents?.total || 0}</span>
+                            </div>
                         </div>
                     </div>
+                    <div className="card-accent"></div>
                 </div>
 
                 <div className="stat-card-mini animate-in" style={{ animationDelay: '0.2s' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: 'var(--accent-purple)' }}>💎</div>
-                    <div className="stat-info">
-                        <label>RESOURCE INDEX</label>
-                        <div className="val-group">
-                            <h3>{(stats?.usage?.cost || 0).toFixed(3)}</h3>
-                            <span className="unit">CTX</span>
+                    <div className="stat-card-inner">
+                        <div className="stat-icon-wrapper purple">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+                        </div>
+                        <div className="stat-data">
+                            <label>COMPUTE_LATENCY</label>
+                            <div className="val-group">
+                                <h3>{(stats?.usage?.cost || 0).toFixed(3)}</h3>
+                                <span className="unit">ms</span>
+                            </div>
                         </div>
                     </div>
+                    <div className="card-accent"></div>
                 </div>
 
                 <div className="stat-card-mini animate-in" style={{ animationDelay: '0.3s' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>⚡</div>
-                    <div className="stat-info">
-                        <label>THROUGHPUT</label>
-                        <div className="val-group">
-                            <h3>{stats?.tasks?.total || 0}</h3>
+                    <div className="stat-card-inner">
+                        <div className="stat-icon-wrapper amber">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                        </div>
+                        <div className="stat-data">
+                            <label>MISSION_RECORDS</label>
+                            <div className="val-group">
+                                <h3>{stats?.tasks?.total || 0}</h3>
+                            </div>
                         </div>
                     </div>
+                    <div className="card-accent"></div>
                 </div>
             </div>
 
@@ -278,16 +318,6 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
                     {renderChakraTopology()}
-                    <div className="topology-stats">
-                        <div className="stat-pill">
-                            <label>NODES</label>
-                            <span>{stats?.agents?.active || 0}</span>
-                        </div>
-                        <div className="stat-pill">
-                            <label>LATENCY</label>
-                            <span>24ms</span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Tertiary Insight: Resource Allocation */}
@@ -334,6 +364,218 @@ export default function AnalyticsPage() {
             </div>
 
             <style jsx>{`
+                .analytics-container {
+                    padding: 40px;
+                    max-width: 1500px;
+                    margin: 0 auto;
+                }
+
+                .page-header {
+                    margin-bottom: 60px;
+                    position: relative;
+                }
+
+                .header-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+
+                .intel-segment {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+
+                .intel-tag {
+                    font-size: 10px;
+                    font-weight: 900;
+                    letter-spacing: 4px;
+                    color: var(--accent-blue);
+                    background: rgba(59, 130, 246, 0.1);
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    border-left: 3px solid var(--accent-blue);
+                }
+
+                .pulse-line {
+                    width: 100px;
+                    height: 1px;
+                    background: linear-gradient(90deg, var(--accent-blue), transparent);
+                    position: relative;
+                }
+
+                .pulse-line::after {
+                    content: '';
+                    position: absolute;
+                    left: 0; top: -1px;
+                    width: 4px; height: 3px;
+                    background: white;
+                    box-shadow: 0 0 10px white;
+                    animation: pulse-move 3s infinite linear;
+                }
+
+                @keyframes pulse-move {
+                    0% { left: 0; opacity: 0; }
+                    20% { opacity: 1; }
+                    80% { opacity: 1; }
+                    100% { left: 100%; opacity: 0; }
+                }
+
+                .dashboard-title {
+                    font-size: 72px;
+                    font-weight: 950;
+                    letter-spacing: -4px;
+                    line-height: 0.9;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .title-alt {
+                    font-size: 16px;
+                    letter-spacing: 12px;
+                    color: var(--text-muted);
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                    padding-left: 4px;
+                }
+
+                .title-main {
+                    background: linear-gradient(to bottom, #fff 30%, var(--accent-blue) 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+
+                .header-decoration {
+                    position: absolute;
+                    bottom: -20px;
+                    left: 0; width: 100%;
+                    height: 1px;
+                    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+                }
+
+                .system-status-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 10px;
+                    font-weight: 900;
+                    color: var(--accent-green);
+                    background: rgba(16, 185, 129, 0.05);
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    border: 1px solid rgba(16, 185, 129, 0.1);
+                    letter-spacing: 1.5px;
+                }
+
+                .status-dot {
+                    width: 6px;
+                    height: 6px;
+                    background: var(--accent-green);
+                    border-radius: 50%;
+                    box-shadow: 0 0 15px var(--accent-green);
+                    animation: pulse-dot 2s infinite;
+                }
+
+                .stats-row {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                    margin-bottom: 40px;
+                }
+
+                .stat-card-mini {
+                    position: relative;
+                    background: rgba(255, 255, 255, 0.01);
+                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border-radius: 12px;
+                    overflow: hidden;
+                    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+                }
+
+                .stat-card-mini:hover {
+                    transform: translateY(-8px);
+                    background: rgba(255, 255, 255, 0.03);
+                    border-color: rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+                }
+
+                .stat-card-inner {
+                    padding: 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .card-accent {
+                    position: absolute;
+                    bottom: 0; left: 0;
+                    width: 100%; height: 2px;
+                    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+
+                .stat-card-mini:hover .card-accent {
+                    opacity: 1;
+                }
+
+                .stat-icon-wrapper {
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    transition: all 0.3s;
+                }
+
+                .stat-icon-wrapper.blue { color: var(--accent-blue); }
+                .stat-icon-wrapper.green { color: var(--accent-green); }
+                .stat-icon-wrapper.purple { color: var(--accent-purple); }
+                .stat-icon-wrapper.amber { color: var(--accent-amber); }
+
+                .stat-card-mini:hover .stat-icon-wrapper {
+                    transform: scale(1.1) rotate(5deg);
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .stat-data label {
+                    display: block;
+                    font-size: 9px;
+                    font-weight: 950;
+                    letter-spacing: 2px;
+                    color: var(--text-muted);
+                    margin-bottom: 6px;
+                }
+
+                .val-group {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                }
+
+                .stat-data h3 {
+                    font-size: 28px;
+                    font-weight: 950;
+                    margin: 0;
+                    letter-spacing: -1px;
+                    color: var(--text-primary);
+                }
+
+                .stat-data .unit {
+                    font-size: 11px;
+                    font-weight: 900;
+                    color: var(--text-muted);
+                    opacity: 0.6;
+                }
+
                 .bento-grid {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
@@ -420,64 +662,84 @@ export default function AnalyticsPage() {
                     color: var(--text-primary);
                 }
 
-                /* Topology Legend */
+                /* Topology Legend & Stats */
                 .chakra-topology-container {
                     flex: 1;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    justify-content: center;
+                    justify-content: space-between;
+                    padding: 0 32px 32px;
+                }
+
+                .topology-footer {
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    padding-top: 20px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.03);
                 }
 
                 .topology-legend {
                     display: flex;
-                    gap: 20px;
-                    margin-top: 20px;
+                    flex-direction: column;
+                    gap: 8px;
                 }
 
                 .legend-item {
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    font-size: 10px;
+                    gap: 8px;
+                    font-size: 8px;
                     font-weight: 900;
+                    color: var(--text-muted);
+                    letter-spacing: 1.5px;
+                }
+
+                .legend-item .dot {
+                    width: 4px; height: 4px;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px currentColor;
+                }
+
+                .topology-ovr-stats {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    min-width: 100px;
+                }
+
+                .ovr-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: baseline;
+                    padding-bottom: 4px;
+                    border-bottom: 1px solid rgba(255,255,255,0.02);
+                }
+
+                .ovr-row label {
+                    font-size: 7px;
+                    font-weight: 950;
                     color: var(--text-muted);
                     letter-spacing: 1px;
                 }
 
-                .legend-item .dot {
-                    width: 6px; height: 6px;
-                    border-radius: 50%;
-                }
-
-                .topology-stats {
-                    display: flex;
-                    justify-content: center;
-                    gap: 12px;
-                    padding-bottom: 32px;
-                }
-
-                .stat-pill {
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.05);
-                    padding: 8px 16px;
-                    border-radius: 12px;
-                    text-align: center;
-                    min-width: 90px;
-                }
-
-                .stat-pill label {
-                    display: block;
-                    font-size: 8px;
-                    font-weight: 900;
-                    color: var(--text-muted);
-                    margin-bottom: 2px;
-                }
-
-                .stat-pill span {
-                    font-size: 15px;
+                .ovr-value {
+                    font-size: 14px;
                     font-weight: 900;
                     color: var(--text-primary);
+                    font-family: var(--font-mono);
+                }
+
+                .ovr-value.highlight {
+                    color: var(--accent-blue);
+                }
+
+                .ovr-value small {
+                    font-size: 8px;
+                    opacity: 0.5;
+                    margin-left: 2px;
                 }
 
                 .scan-badge {
