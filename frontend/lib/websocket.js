@@ -2,6 +2,25 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from './auth';
 
+function normalizeUrl(value) {
+    if (!value) return '';
+    return value.trim().replace(/\/+$/, '');
+}
+
+function resolveWebSocketUrl() {
+    const explicitWs = normalizeUrl(process.env.NEXT_PUBLIC_WS_URL);
+    if (explicitWs) return explicitWs;
+
+    const apiBase = normalizeUrl(process.env.NEXT_PUBLIC_API_URL);
+    if (apiBase) {
+        if (apiBase.startsWith('https://')) return `${apiBase.replace('https://', 'wss://')}/ws`;
+        if (apiBase.startsWith('http://')) return `${apiBase.replace('http://', 'ws://')}/ws`;
+        return `wss://${apiBase}/ws`;
+    }
+
+    return 'ws://localhost:3001/ws';
+}
+
 export function useWebSocket() {
     const [connected, setConnected] = useState(false);
     const [lastEvent, setLastEvent] = useState(null);
@@ -13,7 +32,7 @@ export function useWebSocket() {
     const connect = useCallback(() => {
         if (!user) return; // Wait for user to be available
 
-        const url = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001/ws';
+        const url = resolveWebSocketUrl();
         try {
             const ws = new WebSocket(url);
             wsRef.current = ws;
