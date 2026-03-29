@@ -1,4 +1,10 @@
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+function normalizeApiBaseUrl(value) {
+    const raw = (value || 'http://localhost:3001').trim();
+    const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    return withProtocol.replace(/\/+$/, '');
+}
+
+const API_URL = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
 function buildUrl(endpoint) {
     const safeEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
