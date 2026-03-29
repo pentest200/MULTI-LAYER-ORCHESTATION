@@ -32,6 +32,9 @@ async function request(endpoint, options = {}) {
     }
 }
 
+// Backward-compatible alias used in older pages.
+export const apiRequest = request;
+
 // Auth
 export const login = (credentials) => request('/api/auth/login', { method: 'POST', body: credentials });
 export const signup = (data) => request('/api/auth/signup', { method: 'POST', body: data });
@@ -57,6 +60,8 @@ export const launchTask = (data) => request('/api/tasks/launch', { method: 'POST
 export const cancelTask = (id) => request(`/api/tasks/${id}/cancel`, { method: 'POST' });
 export const getTaskLogs = (id) => request(`/api/tasks/${id}/logs`);
 export const getTaskNodes = (id) => request(`/api/tasks/${id}/nodes`);
+export const suggestInput = (title, context = '') =>
+    request('/api/ai/suggest-input', { method: 'POST', body: { title, context } });
 
 // Workflows
 export const getWorkflows = () => request('/api/workflows');
