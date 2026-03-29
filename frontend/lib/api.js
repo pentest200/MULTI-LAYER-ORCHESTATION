@@ -1,7 +1,12 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+
+function buildUrl(endpoint) {
+    const safeEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_URL}${safeEndpoint}`;
+}
 
 async function request(endpoint, options = {}) {
-    const url = `${API_URL}${endpoint}`;
+    const url = buildUrl(endpoint);
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     const config = {
