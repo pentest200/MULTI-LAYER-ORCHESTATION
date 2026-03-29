@@ -5,6 +5,7 @@ import cors from '@fastify/cors';
 import websocket from '@fastify/websocket';
 import jwt from '@fastify/jwt';
 import { initializeSchema } from './db/schema.js';
+import { closeDb } from './db/connection.js';
 import authRoutes from './routes/auth.js';
 import billingRoutes from './routes/billing.js';
 import agentsRoutes from './routes/agents.js';
@@ -47,6 +48,23 @@ ${colors.dim}   [ NEURAL CORE ORCHESTRATION ENGINE ] v0.8.2${colors.reset}
     const fastify = Fastify({
         logger: false, // Disabling default logger for cleaner custom output
     });
+    let isShuttingDown = false;
+
+    const shutdown = async (signal) => {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+        console.log(`${colors.yellow}[SHUTDOWN]${colors.reset} Received ${signal}, closing services...`);
+        try {
+            await fastify.close();
+        } catch {
+            // Ignore shutdown errors so the process can still exit cleanly.
+        }
+        closeDb();
+        process.exit(0);
+    };
+
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
+    process.once('SIGINT', () => shutdown('SIGINT'));
 
     console.log(`${colors.blue}┌── ${colors.bright}SYSTEM INITIALIZATION${colors.reset}`);
     process.stdout.write(`${colors.blue}│${colors.reset} [DATABASE] Connecting to manifest storage... `);
