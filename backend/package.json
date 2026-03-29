@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "type": "module",
     "description": "Chakraview — Next-generation neural orchestration engine",
+    "engines": {
+        "node": "20.x"
+    },
     "main": "src/index.js",
     "scripts": {
         "start": "node src/index.js",
